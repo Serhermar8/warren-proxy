@@ -6,6 +6,7 @@ app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 app.get('/api/warren/health', (_, res) => res.json({ ok: true }));
+app.get('/health', (_, res) => res.json({ ok: true }));
 
 app.post('/api/warren', async (req, res) => {
   try {
