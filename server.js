@@ -1,16 +1,12 @@
-// server.js — versión CommonJS (compatible con Node 24)
 const express = require('express');
 const cors = require('cors');
-require('dotenv/config');
 
 const app = express();
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-// Health check
 app.get('/api/warren/health', (_, res) => res.json({ ok: true }));
 
-// Proxy seguro hacia Anthropic
 app.post('/api/warren', async (req, res) => {
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -29,4 +25,4 @@ app.post('/api/warren', async (req, res) => {
   }
 });
 
-app.listen(3001, () => console.log('✅ Warren proxy en http://localhost:3001'));
+app.listen(3001, () => console.log('Servidor activo'));
