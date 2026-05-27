@@ -33,7 +33,7 @@ async function proxyHandler(req, res) {
     console.log('ENVIANDO A GEMINI:', JSON.stringify(body).slice(0, 500));
 
     const key = process.env.GEMINI_API_KEY;
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+ const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
 
     const response = await fetch(url, {
       method: 'POST',
