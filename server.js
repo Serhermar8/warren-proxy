@@ -5,24 +5,45 @@ const app = express();
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-// Health checks — todas las variantes que puede pedir la app
 app.get('/health',            (_, res) => res.json({ ok: true }));
 app.get('/api/warren/health', (_, res) => res.json({ ok: true }));
 
-// Proxy hacia Anthropic — acepta POST en ambas rutas
 async function proxyHandler(req, res) {
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const messages = req.body.messages || [];
+    const system = req.body.system || '';
+
+    // Convierte formato Anthropic → Gemini
+    const contents = messages.map(m => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }]
+    }));
+
+    const systemInstruction = system
+      ? { parts: [{ text: system }] }
+      : undefined;
+
+    const body = {
+      contents,
+      ...(systemInstruction && { system_instruction: systemInstruction }),
+      generationConfig: { maxOutputTokens: req.body.max_tokens || 1000 }
+    };
+
+    const key = process.env.GEMINI_API_KEY;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+
+    const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify(req.body),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
     });
+
     const data = await response.json();
-    res.json(data);
+
+    // Convierte respuesta Gemini → formato Anthropic para que la app no note el cambio
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sin respuesta';
+    res.json({ content: [{ type: 'text', text }] });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
