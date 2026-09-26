@@ -19,7 +19,7 @@ async function proxyHandler(req, res) {
         'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
+        model: 'openai/gpt-oss-20b',
         max_tokens: req.body.max_tokens || 1000,
         messages: messages.length ? messages : [{role:'user',content:'Hola'}],
       }),
