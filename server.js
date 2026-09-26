@@ -19,7 +19,7 @@ async function proxyHandler(req, res) {
         'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'llama-3.1-70b-versatile',
+        model: 'llama-3.1-8b-instant',
         max_tokens: req.body.max_tokens || 1000,
         messages: messages.length ? messages : [{role:'user',content:'Hola'}],
       }),
